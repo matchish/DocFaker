@@ -22,6 +22,7 @@ switch ($action) {
         break;
     case 'save_config':
         $config = file_get_contents('php://input');
+        $config = json_decode(json_encode($config));
         $templates_config = new \DocFaker\TemplatesConfig($modx);
         $output = $templates_config->save($config) ? '' : header('HTTP/1.1 500 Internal Server Error');
         break;
