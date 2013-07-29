@@ -8,20 +8,21 @@ $modResource = new \DocFaker\modResource($modx);
 $generator = \Faker\Factory::create('ru_RU');
 $documentor = new Faker\Documentor($generator);
 $fakerAdapter = new \DocFaker\FakerAdapter($documentor, $generator);
-$render = new \DocFaker\Render();
-$templates_config = new \DocFaker\TemplatesConfig($modx);
+
 $docfaker = new \DocFaker\DocFaker($fakerAdapter, $modResource);
-$app_tpl = $module_path.'js/app/index.html';
+
 $action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : '';
 switch ($action) {
     case 'get_config':
         header('Content-type: application/json');
+        $templates_config = new \DocFaker\TemplatesConfig($modx);
         $params['templates'] = $templates_config->load();
         $params['formatters'] = $fakerAdapter->getFormatters();
         $output = json_encode($params);
         break;
     case 'save_config':
         $config = file_get_contents('php://input');
+        $templates_config = new \DocFaker\TemplatesConfig($modx);
         $output = $templates_config->save($config) ? '' : header('HTTP/1.1 500 Internal Server Error');
         break;
     case 'create_node':
@@ -49,7 +50,9 @@ switch ($action) {
         }
         break;
     default:
+        $app_tpl = $module_path.'js/app/index.html';
         $params = array();
+        $render = new \DocFaker\Render();
         $output = $render->run($app_tpl, $params);
         break;
 }
