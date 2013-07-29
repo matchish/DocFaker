@@ -12,4 +12,4 @@ DocFaker требует PHP >= 5.3.3.
 <code>include_once(MODX_BASE_PATH.'assets/modules/DocFaker/src/DocFaker.module.php');</code>
 
 
-Обсуждение модуля и инструкция по использованию [здесь](# "MODx.im").
+Обсуждение модуля и инструкция по использованию [здесь](http://modx.im/blog/addons/1118.html "MODx.im").
