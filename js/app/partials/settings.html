@@ -1,0 +1,43 @@
+<div ng-controller="configCtrl" >
+	      <div class="row-fluid">
+        <div class="span2">          
+          <div class="control-group">
+            <label class="control-label">Выберите шаблон</label>
+            <div class="controls" ng-repeat="(key, item) in config.templates">
+              <label class="radio" for="template">
+                <input type="radio" value="{{key}}" ng-click="$parent.template = item; $parent.current_template = key" name="template">
+                <span>{{item.templatename}}</span>
+              </label>
+            </div>
+          </div>
+          <hr>
+          <button class="btn btn-large btn-block btn-success" type="button" ng-click="save()">Сохранить настройки</button>
+          <div ng-show="!!submit_message.text" ng-class="'alert '+submit_message.type">
+            <button type="button" class="close" ng-click="submit_message.text = ''">&times;</button>
+            {{submit_message.text}}
+          </div>          
+        </div>
+        <div class="span10">
+			<accordion close-others="false">
+				<accordion-group heading="{{tv.caption +' – '+ tv.name}}" ng-repeat="(tv_id,tv) in template.tvs">  
+          {{config.templates[current_template]}}  foo  
+					<select ng-model="config.templates[current_template].tvs[tv_id].formatter">
+            <option value="null">оставить пустым</option>     
+            <optgroup label="{{provider}}" ng-repeat="(provider, formatters) in config.formatters">              
+              <option value="{{formatter}}" ng-repeat="(formatter, example) in formatters">{{formatter}} (Пример: {{example}})</option>
+            </optgroup>     
+          </select>
+				</accordion-group>
+			</accordion>           	
+          <!--<div class="control-group" ng-show="!!template.id">
+            <label class="control-label">TVs</label>
+            <div class="controls  controls-row  form-horizontal">
+              <select>
+  				<option>1</option>
+				</select>
+              <span class="help-inline">Inline help text</span>
+            </div>
+          </div>
+        </div>-->
+      </div>
+</div>

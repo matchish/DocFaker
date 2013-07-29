@@ -1,0 +1,18 @@
+	<div class="btn-group btn-toolbar">
+		<a class="btn"  ng-disabled="nodeForm.$invalid" ng-init="edit=true" ng-click="edit = nodeForm.$invalid || !edit " href="#"><i ng-class="{'icon-arrow-up': edit, 'icon-arrow-down': !edit}"></i>{{desc(data, edit)}}</a>
+		<a class="btn"  ng-click="add(data)"  ng-show="nodeForm.$valid"href="#"><i class="icon-plus"></i></a>
+		<a class="btn" ng-click="delete(data)" href="#" ng-show="data.nodes.length > 0"><i class="icon-minus"></i></a>
+	</div>
+	<div ng-show="edit" ng-form="nodeForm">
+		<div class="controls  controls-row control-group"  ng-class="{error: nodeForm.amount.$invalid}">
+			<input type="text" placeholder="количество" name="amount" ng-model="data.amount" ng-pattern="number" required>
+		</div> 
+		<div class="controls  controls-row">
+			<select ng-model="data.template" name="template" ng-options="id as t.templatename for (id, t) in config.templates" required>
+	            <option value="">-- выберите шаблон --</option>   
+	        </select> 			
+		</div> 				
+	</div>  
+    <ul>
+        <li ng-repeat="data in data.nodes" ng-include="'/assets/modules/DocFaker/js/app/partials/tree_item.html'"></li>
+    </ul>

@@ -1,0 +1,29 @@
+<div ng-controller="configCtrl" >
+	      <div class="row-fluid">
+        <div class="span2">          
+          <div class="control-group">
+            <label class="control-label">Выберите шаблон</label>
+            <div class="controls" ng-repeat="(key, item) in config.templates">
+              <label class="radio" for="template">
+                <input type="radio" value="{{item.id}}" ng-click="$parent.template = item; $parent.current_template = key" name="template">
+                <span>{{item.templatename}}</span>
+              </label>
+            </div>
+          </div>
+          <hr>
+          <button class="btn btn-large btn-block btn-success" type="button" ng-click="save()">Сохранить настройки</button>
+          <div ng-show="!!submit_message.text" ng-class="'alert '+submit_message.type">
+            <button type="button" class="close" ng-click="submit_message.text = ''">&times;</button>
+            {{submit_message.text}}
+          </div>          
+        </div>
+        <div class="span10">
+			<accordion close-others="false">
+				<accordion-group heading="{{field.caption +' – '+ field.name}}" ng-repeat="(key, field) in template.fields">
+          <select ng-model="config.templates[current_template].fields[key].formatter" ng-options="formatter.name as formatter.name + ' (Пример: ' + formatter.example + ')' group by formatter.provider for formatter in config.formatters">
+            <option value="">-- оставить пустым --</option>   
+          </select>          
+				</accordion-group>
+			</accordion>           	
+      </div>
+</div>
