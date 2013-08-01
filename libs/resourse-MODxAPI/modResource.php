@@ -94,6 +94,10 @@ class modResource extends MODxAPI{
 		return $this;
 	}
 	public function save($fire_events = null,$clearCache = false){
+		if ($this->field['pagetitle'] == '') {
+			$this->set('pagetitle',$this->default_field['pagetitle']);
+		}
+		$this->set('alias',$this->getAlias());
 
 		$this->invokeEvent('OnBeforeDocFormSave',array (
 			"mode" => $this->newDoc ? "new" : "upd",
@@ -108,7 +112,6 @@ class modResource extends MODxAPI{
 			$this->Uset($key);
 			unset($fld[$key]);
 		}
-        $this->set('alias',$this->getAlias());
 
         if (!empty($this->set)){
 			if($this->newDoc){
