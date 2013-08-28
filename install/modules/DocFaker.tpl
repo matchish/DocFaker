@@ -8,6 +8,11 @@
  * @version 	0.9 Beta
  * @license 	The MIT License (MIT)
  * @internal	@modx_category Manager and Admin
+ * @internal	@properties	 
+ * @internal	@guid g45t534drgg	
+ * @internal	@shareparams
+ * @internal	@dependencies
+ * @internal    @installset base
  */
 
 /**
