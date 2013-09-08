@@ -3,7 +3,27 @@
 /* Services */
 
 
-// Demonstrate how to register services
-// In this case it is a simple value service.
-angular.module('DocFaker.services', []).
-  value('version', '0.1');
+angular.factory('httpQueue', function($q, $http) {
+
+    var queue = [];
+    var execNext = function() {
+        var task = queue[0];
+        $http(task.c).then(function(data) {
+            queue.shift();
+            task.d.resolve(data);
+            if (queue.length > 0) execNext();
+        }, function(err) {
+            task.d.reject(err);
+        });
+    };
+    return function(config) {
+        var d = $q.defer();
+        queue.push({
+            c: config,
+            d: d
+        });
+        if (queue.length === 1) execNext();
+        return d.promise;
+    };
+
+});
