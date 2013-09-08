@@ -15,6 +15,7 @@ controller('mainCtrl', ['$scope', 'httpQueue', '$location',
             }
         }).
         then(function(data) {
+            data = data.data;
             var formatters = [];
             angular.forEach(data.formatters, function(formatters, provider) {
                 angular.forEach(formatters, function(desc, name) {

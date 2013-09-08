@@ -2,7 +2,7 @@
 
 /* Services */
 
-angular.module('DocFaker', [], function($provide) {
+angular.module('DocFaker.services', [], function($provide) {
     $provide.factory('httpQueue', function($q, $http) {
 
         var queue = [];
