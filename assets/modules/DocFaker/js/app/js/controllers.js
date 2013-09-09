@@ -6,7 +6,7 @@ angular.module('DocFaker.controllers', []).
 controller('mainCtrl', ['$scope', 'httpQueue', '$location',
     function($scope, httpQueue, $location) {
         $scope.number = /^\d*$/;
-
+        
         httpQueue({
             method: 'GET',
             url: $location.absUrl(),
@@ -35,16 +35,27 @@ controller('mainCtrl', ['$scope', 'httpQueue', '$location',
         });
     }
 ]).
-controller('treeCtrl', ['$scope', '$http', '$location',
-    function($scope, $http, $location) {
+controller('treeCtrl', ['$scope', 'httpQueue', '$location',
+    function($scope, httpQueue, $location) {        
+        
         $scope.created = 0;
+        $scope.must_be_created = 0;
         $scope.errors = [];
-        $scope.queue = [];
-        $scope.request = false;
-        $scope.doNotDisturb = [];
+        
+        $scope.init = function(){
+            $scope.created = 0;
+            $scope.must_be_created = 0;
+            $scope.errors = [];         
+        }
+            
+        $scope.doNotDisturb = function(){
+            return !($scope.must_be_created == $scope.created || $scope.errors.length > 0)
+        };          
+    
         $scope.delete = function(data) {
             data.nodes = [];
         };
+        
         $scope.add = function(data) {
             data.nodes.push({
                 amount: null,
@@ -52,6 +63,7 @@ controller('treeCtrl', ['$scope', '$http', '$location',
                 nodes: []
             });
         };
+        
         $scope.desc = function(data, edit) {
             var desc;
             var template;
@@ -66,34 +78,26 @@ controller('treeCtrl', ['$scope', '$http', '$location',
             }
             return desc;
         };
+        
         $scope.create = function create(parents, nodes) {
+            
             if ($scope.errors.length > 0) {
                 return;
-            }
-            for (var i = 0; i < nodes.length; i++) {
-                for (var j = 0; j < parents.length; j++) {
+            }           
+            
+            angular.forEach(nodes, function(node) {
+                angular.forEach(parents, function(parent) {
+                    var node = this;
                     var doc = {};
-                    doc.fields = get_fields(nodes[i].template);
-                    doc.fields['parent'] = parents[j];
-                    doc.fields['template'] = $scope.config.templates[nodes[i].template].id;
-                    doc.fields['isfolder'] = (nodes[i].nodes.length > 0) ? 1 : 0;
-                    doc.amount = nodes[i].amount;
-                    $scope.queue.push({
-                        doc: doc,
-                        nodes: nodes[i].nodes
-                    });
-                }
-            }
-
-            if (!$scope.request) {
-                var elem = $scope.queue.pop();
-                if (elem === undefined) {
-                    return;
-                }
-                (function(doc, nodes) {
-                    $scope.doNotDisturb.push(true);
-                    $scope.request = true;
-                    $http({
+                    doc.fields = get_fields(node.template);
+                    doc.fields['parent'] = parent;
+                    doc.fields['template'] = $scope.config.templates[node.template].id;
+                    doc.fields['isfolder'] = (node.nodes.length > 0) ? 1 : 0;
+                    doc.amount = node.amount;
+                    
+                    $scope.must_be_created += parseInt(doc.amount);
+                    
+                    httpQueue({
                         method: 'POST',
                         url: $location.absUrl(),
                         params: {
@@ -101,20 +105,16 @@ controller('treeCtrl', ['$scope', '$http', '$location',
                         },
                         data: doc
                     }).
-                    success(function(data, status, headers, config) {
-                        $scope.request = false;
-                        $scope.doNotDisturb.pop();
-                        var parents = data;
+                    then(function(data) {
+                        var parents = data.data;
                         $scope.created += parents.length;
-                        create(parents, nodes);
-                    }).
-                    error(function(data, status, headers, config) {
-                        $scope.request = false;
-                        $scope.doNotDisturb.pop();
+                        create(parents, node.nodes);
+                    },function(data) {
                         $scope.errors.push("Что-то пошло не так");
                     });
-                })(elem.doc, elem.nodes);
-            }
+
+                }, node);
+            });
 
             function get_fields(template) {
                 var fields = $scope.config.templates[template].fields;
@@ -126,16 +126,17 @@ controller('treeCtrl', ['$scope', '$http', '$location',
                 return result;
             };
         };
+        
         $scope.tree = [{
             root: null,
             nodes: []
         }];
     }
 ]).
-controller('configCtrl', ['$scope', '$http', '$location',
-    function($scope, $http, $location) {
+controller('configCtrl', ['$scope', 'httpQueue', '$location',
+    function($scope, httpQueue, $location) {
         $scope.save = function() {
-            $http({
+            httpQueue({
                 method: 'POST',
                 url: $location.absUrl(),
                 params: {
@@ -143,13 +144,12 @@ controller('configCtrl', ['$scope', '$http', '$location',
                 },
                 data: $scope.$parent.config.templates
             }).
-            success(function(data, status, headers, config) {
+            then(function(data) {
                 $scope.submit_message = {
                     type: 'alert-success',
                     text: 'Сохранение прошло успешно'
                 };
-            }).
-            error(function(data, status, headers, config) {
+            }, function(data) {
                 $scope.submit_message = {
                     type: 'alert-error',
                     text: 'что-то пошло не так. Попробуйте еще раз'
